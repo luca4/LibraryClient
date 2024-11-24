@@ -28,3 +28,28 @@ class LibraryClient:
         if time.time() > self.token_expiration:
             raise Exception("User not authenticated, log in first")
 
+    def get_books(self):
+        self.ensure_authentication()
+        auth_header = {"Authorization": f"Bearer {self.auth_token}"}
+        response = requests.get(f"{base_url}/books", headers=auth_header)
+
+        if response.status_code == 200:
+            return response.json()
+        else:
+            raise Exception("Error while retrieving books from server")
+
+    def borrow_book(self, book_id: int):
+        self.ensure_authentication()
+        auth_header = {"Authorization": f"Bearer {self.auth_token}"}
+        response = requests.post(f"{base_url}/books/{book_id}/borrow", headers=auth_header)
+
+        if response.status_code != 200:
+            raise Exception(f"Error while borrowing book with id {book_id}")
+
+    def return_book(self, book_id: int):
+        self.ensure_authentication()
+        auth_header = {"Authorization": f"Bearer {self.auth_token}"}
+        response = requests.post(f"{base_url}/books/{book_id}/return", headers=auth_header)
+
+        if response.status_code != 200:
+            raise Exception(f"Error while returning book with id {book_id}")

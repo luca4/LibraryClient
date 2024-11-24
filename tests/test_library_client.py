@@ -41,3 +41,40 @@ def test_login_invalid_credentials(client):
     assert str(exc_info.value) == "Wrong username or password"
     assert client.auth_token is None
     assert client.token_expiration == 0
+
+
+def test_get_books(client):
+    """ Test returning list of books  """
+    client.login(test_user_not_admin["username"], test_user_not_admin["password"])
+    books = client.get_books()
+
+    assert "books" in books
+
+
+def test_borrow_book(client):
+    """Test borrowing of a book."""
+    # Log in first
+    client.login(test_user_not_admin["username"], test_user_not_admin["password"])
+
+    # Borrow a book
+    book_id = 1
+    try:
+        client.borrow_book(book_id)
+    except Exception:
+        pytest.fail("borrow_book raised an exception unexpectedly")
+
+
+def test_return_book(client):
+    """Test return of a book."""
+    # Log in first
+    client.login(test_user_not_admin["username"], test_user_not_admin["password"])
+
+    # Borrow a book first (to ensure it can be returned)
+    book_id = 1
+    client.borrow_book(book_id)
+
+    # Return the borrowed book
+    try:
+        client.return_book(book_id)
+    except Exception:
+        pytest.fail("return_book raised an exception unexpectedly")
