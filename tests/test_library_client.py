@@ -1,6 +1,9 @@
 import pytest
 from library_client import LibraryClient
 
+test_user_not_admin = {"username": "carlo", "password": "bianchi"}
+test_user_admin = {"username": "mario", "password": "rossi"}
+
 
 @pytest.fixture
 def client():
@@ -9,10 +12,8 @@ def client():
 
 def test_login_success_not_admin(client):
     """Test successful login with non admin user"""
-    username = "carlo"
-    password = "bianchi"
 
-    client.login(username, password)
+    client.login(test_user_not_admin["username"], test_user_not_admin["password"])
 
     assert client.auth_token is not None
     assert client.token_expiration > 0
@@ -22,7 +23,7 @@ def test_login_success_not_admin(client):
 def test_login_success_admin(client):
     """Test successful login with admin user"""
 
-    client.login("mario", "rossi")
+    client.login(test_user_admin["username"], test_user_admin["password"])
 
     assert client.auth_token is not None
     assert client.token_expiration > 0
