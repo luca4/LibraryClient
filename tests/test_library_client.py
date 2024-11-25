@@ -1,5 +1,6 @@
 import pytest
 from library_client import LibraryClient
+from exceptions import *
 
 test_user_not_admin = {"username": "carlo", "password": "bianchi"}
 test_user_admin = {"username": "mario", "password": "rossi"}
@@ -35,10 +36,9 @@ def test_login_invalid_credentials(client):
     username = "wrong_user"
     password = "wrong_password"
 
-    with pytest.raises(Exception) as exc_info:
+    with pytest.raises(AuthenticationError):
         client.login(username, password)
 
-    assert str(exc_info.value) == "Wrong username or password"
     assert client.auth_token is None
     assert client.token_expiration == 0
 
@@ -92,12 +92,10 @@ def test_add_book_success(client):
 def test_add_book_invalid_data(client):
     """Test adding a book with invalid data."""
     client.login(test_user_admin["username"], test_user_admin["password"])
-    book_data = {} # Missing required fields
+    book_data = {}  # Missing required fields
 
-    with pytest.raises(Exception) as exc_info:
+    with pytest.raises(ValidationError):
         client.add_book(book_data)
-
-    assert str(exc_info.value) == "Wrong book parameters"
 
 
 def test_delete_book_success(client):
@@ -116,10 +114,8 @@ def test_delete_book_not_found(client):
     client.login(test_user_admin["username"], test_user_admin["password"])
     book_id = -1  # Assumes -1 is not valid id
 
-    with pytest.raises(Exception) as exc_info:
+    with pytest.raises(ResourceNotFoundError):
         client.delete_book(book_id)
-
-    assert str(exc_info.value) == f"No book with id {book_id} found on server"
 
 
 def test_update_book_success(client):
@@ -148,7 +144,5 @@ def test_update_book_not_found(client):
         "is_borrowed": True
     }
 
-    with pytest.raises(Exception) as exc_info:
+    with pytest.raises(ResourceNotFoundError):
         client.update_book(book_id, updated_data)
-
-    assert str(exc_info.value) == f"No book with id {book_id} found on server"
