@@ -53,3 +53,34 @@ class LibraryClient:
 
         if response.status_code != 200:
             raise Exception(f"Error while returning book with id {book_id}")
+
+    # Admin endpoints #
+    def add_book(self, book_data: dict):
+        self.ensure_authentication()
+        auth_header = {"Authorization": f"Bearer {self.auth_token}"}
+        response = requests.post(f"{base_url}/books", headers=auth_header, data=book_data)
+
+        if response.status_code == 400:
+            raise Exception("Wrong book parameters")
+        elif response.status_code != 204:
+            raise Exception("Error while adding book")
+
+    def delete_book(self, book_id: int):
+        self.ensure_authentication()
+        auth_header = {"Authorization": f"Bearer {self.auth_token}"}
+        response = requests.delete(f"{base_url}/books/{book_id}", headers=auth_header)
+
+        if response.status_code == 404:
+            raise Exception(f"No book with id {book_id} found on server")
+        elif response.status_code != 204:
+            raise Exception(f"Error while deleting book with id {book_id}")
+
+    def update_book(self, book_id: int, book_data: dict):
+        self.ensure_authentication()
+        auth_header = {"Authorization": f"Bearer {self.auth_token}"}
+        response = requests.put(f"{base_url}/books/{book_id}", headers=auth_header, data=book_data)
+
+        if response.status_code == 404:
+            raise Exception(f"No book with id {book_id} found on server")
+        elif response.status_code != 204:
+            raise Exception(f"Error while updating book data with id {book_id}")

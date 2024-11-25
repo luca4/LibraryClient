@@ -53,28 +53,102 @@ def test_get_books(client):
 
 def test_borrow_book(client):
     """Test borrowing of a book."""
-    # Log in first
     client.login(test_user_not_admin["username"], test_user_not_admin["password"])
 
-    # Borrow a book
-    book_id = 1
     try:
-        client.borrow_book(book_id)
+        client.borrow_book(book_id=1)
     except Exception:
         pytest.fail("borrow_book raised an exception unexpectedly")
 
 
 def test_return_book(client):
     """Test return of a book."""
-    # Log in first
     client.login(test_user_not_admin["username"], test_user_not_admin["password"])
 
-    # Borrow a book first (to ensure it can be returned)
     book_id = 1
     client.borrow_book(book_id)
 
-    # Return the borrowed book
     try:
         client.return_book(book_id)
     except Exception:
         pytest.fail("return_book raised an exception unexpectedly")
+
+
+def test_add_book_success(client):
+    """Test successfully adding a book."""
+    client.login(test_user_admin["username"], test_user_admin["password"])
+    book_data = {
+        "title": "testTitle",
+        "author": "testAuthor",
+        "is_borrowed": "false"
+    }
+
+    try:
+        client.add_book(book_data)
+    except Exception:
+        pytest.fail("add_book raised an exception unexpectedly")
+
+
+def test_add_book_invalid_data(client):
+    """Test adding a book with invalid data."""
+    client.login(test_user_admin["username"], test_user_admin["password"])
+    book_data = {} # Missing required fields
+
+    with pytest.raises(Exception) as exc_info:
+        client.add_book(book_data)
+
+    assert str(exc_info.value) == "Wrong book parameters"
+
+
+def test_delete_book_success(client):
+    """Test successfully deleting a book."""
+    client.login(test_user_admin["username"], test_user_admin["password"])
+    book_id = 1  # Assumes book ID 1 exists in the mock server
+
+    try:
+        client.delete_book(book_id)
+    except Exception:
+        pytest.fail("delete_book raised an exception unexpectedly")
+
+
+def test_delete_book_not_found(client):
+    """Test deleting a non-existent book."""
+    client.login(test_user_admin["username"], test_user_admin["password"])
+    book_id = -1  # Assumes -1 is not valid id
+
+    with pytest.raises(Exception) as exc_info:
+        client.delete_book(book_id)
+
+    assert str(exc_info.value) == f"No book with id {book_id} found on server"
+
+
+def test_update_book_success(client):
+    """Test successfully updating a book."""
+    client.login(test_user_admin["username"], test_user_admin["password"])
+    book_id = 1  # Assumes book ID 1 exists in the mock server
+    updated_data = {
+        "title": "testTitle2",
+        "author": "testAuthor2",
+        "is_borrowed": False
+    }
+
+    try:
+        client.update_book(book_id, updated_data)
+    except Exception:
+        pytest.fail("update_book raised an exception unexpectedly")
+
+
+def test_update_book_not_found(client):
+    """Test updating a non-existent book."""
+    client.login(test_user_admin["username"], test_user_admin["password"])
+    book_id = -1  # Assumes -1 is not valid id
+    updated_data = {
+        "title": "testTitle1",
+        "author": "testAuthor1",
+        "is_borrowed": True
+    }
+
+    with pytest.raises(Exception) as exc_info:
+        client.update_book(book_id, updated_data)
+
+    assert str(exc_info.value) == f"No book with id {book_id} found on server"
