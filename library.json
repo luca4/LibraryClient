@@ -208,7 +208,7 @@
       "responses": [
         {
           "uuid": "853102af-98af-4b29-8a53-46347ceb792b",
-          "body": "{{#switch (urlParam 'id')}}\n  {{#case '0'}}{{setData 'set' 'Books' 'books.0.is_borrowed' true}}{{/case}}\n  {{#case '1'}}{{setData 'set' 'Books' 'books.1.is_borrowed' true}}{{/case}}\n{{/switch}}",
+          "body": "{{#switch (urlParam 'id')}}\n  {{#case '0'}}{{setData 'set' 'Books' 'books.0.is_borrowed' 'true'}}{{/case}}\n  {{#case '1'}}{{setData 'set' 'Books' 'books.1.is_borrowed' 'true'}}{{/case}}\n{{/switch}}",
           "latency": 0,
           "statusCode": 200,
           "label": "",
@@ -239,7 +239,7 @@
       "responses": [
         {
           "uuid": "40b5b353-8283-4693-8c02-54ff7cc09601",
-          "body": "{{#switch (urlParam 'id')}}\n  {{#case '0'}}{{setData 'set' 'Books' 'books.0.is_borrowed' false}}{{/case}}\n  {{#case '1'}}{{setData 'set' 'Books' 'books.1.is_borrowed' false}}{{/case}}\n{{/switch}}",
+          "body": "{{#switch (urlParam 'id')}}\n  {{#case \"0\"}}{{setData 'set' 'Books' 'books.0.is_borrowed' false}}{{/case}}\n  {{#case \"1\"}}{{setData 'set' 'Books' 'books.1.is_borrowed' false}}{{/case}}\n{{/switch}}\n(urlParam 'id')",
           "latency": 0,
           "statusCode": 200,
           "label": "",
@@ -286,9 +286,16 @@
               "value": "Bearer {{data 'Token' 'token'}}",
               "invert": true,
               "operator": "equals"
+            },
+            {
+              "target": "header",
+              "modifier": "Authorization",
+              "value": "Bearer {{data 'Token_admin' 'token'}}",
+              "invert": true,
+              "operator": "equals"
             }
           ],
-          "rulesOperator": "OR",
+          "rulesOperator": "AND",
           "disableTemplating": false,
           "fallbackTo404": false,
           "default": true,
@@ -309,10 +316,29 @@
       "responses": [
         {
           "uuid": "22ebb44d-4425-480a-9ec3-af0baad3a4b5",
-          "body": "",
+          "body": "{\n  \"book_id\": 2\n}",
           "latency": 0,
-          "statusCode": 204,
+          "statusCode": 200,
           "label": "Book successfully created, no content returned",
+          "headers": [],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true,
+          "crudKey": "id",
+          "callbacks": []
+        },
+        {
+          "uuid": "0f48e757-7671-46eb-b3ed-f46ae53eed1f",
+          "body": "{}",
+          "latency": 0,
+          "statusCode": 400,
+          "label": "Body fields not correct",
           "headers": [],
           "bodyType": "INLINE",
           "filePath": "",
@@ -320,17 +346,17 @@
           "sendFileAsBody": false,
           "rules": [
             {
-              "target": "header",
+              "target": "body",
               "modifier": "",
               "value": "",
               "invert": false,
-              "operator": "equals"
+              "operator": "null"
             }
           ],
           "rulesOperator": "OR",
           "disableTemplating": false,
           "fallbackTo404": false,
-          "default": true,
+          "default": false,
           "crudKey": "id",
           "callbacks": []
         }
@@ -348,7 +374,7 @@
       "responses": [
         {
           "uuid": "6f0f9509-626b-4331-8807-100a459a96c3",
-          "body": "{}",
+          "body": "",
           "latency": 0,
           "statusCode": 204,
           "label": "Delete book with specific id, no content returned",
@@ -376,7 +402,15 @@
           "filePath": "",
           "databucketID": "",
           "sendFileAsBody": false,
-          "rules": [],
+          "rules": [
+            {
+              "target": "params",
+              "modifier": "id",
+              "value": "-\\d+",
+              "invert": false,
+              "operator": "regex"
+            }
+          ],
           "rulesOperator": "OR",
           "disableTemplating": false,
           "fallbackTo404": false,
@@ -426,7 +460,15 @@
           "filePath": "",
           "databucketID": "",
           "sendFileAsBody": false,
-          "rules": [],
+          "rules": [
+            {
+              "target": "params",
+              "modifier": "id",
+              "value": "-\\d+",
+              "invert": false,
+              "operator": "regex"
+            }
+          ],
           "rulesOperator": "OR",
           "disableTemplating": false,
           "fallbackTo404": false,
@@ -537,6 +579,13 @@
       "name": "Test",
       "documentation": "",
       "value": "{\n  \"prova\":\"asdasd\"\n}"
+    },
+    {
+      "uuid": "7131729d-d315-423a-86e8-edacd9be8511",
+      "id": "f3qo",
+      "name": "BookSchema",
+      "documentation": "",
+      "value": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"title\": { \"type\": \"string\" },\n    \"author\": { \"type\": \"string\" },\n    \"is_borrowed\": { \"type\": \"boolean\" }\n  }\n}"
     }
   ],
   "callbacks": []
